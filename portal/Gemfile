@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "rails", "~> 8.0.0"
+gem "puma", ">= 6.4"
+gem "bootsnap", require: false
+gem "rexml"          # CAS XML parsing (not a default gem since Ruby 3.0)
+gem "tzinfo-data"    # slim images ship without zoneinfo
+# ENTRA MIGRATION (phase 2): the OIDC gems pull in faraday, which resolves json 3.x without this pin.
+gem "json", "~> 2.7" # json 3.x drops the quirks_mode option ActiveSupport 8.0 passes, so every to_json raises
+
+# ENTRA MIGRATION (phase 2, AUTH-1): the gems below are new.
+# AFTER state: OpenID Connect sign-in with Microsoft Entra ID.
+gem "omniauth", "~> 2.1"
+gem "omniauth-entra-id", "~> 3.0"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
+
+# Shared token toolkit (refresh, claims challenge parsing).
+gem "entra_auth", path: "../gems/entra_auth"
+
+group :development, :test do
+  gem "debug", platforms: %i[mri windows]
+end

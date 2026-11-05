@@ -1,0 +1,7 @@
+.env
+infra/entra/test-users.txt
+infra/azure/.last-image-tag
+**/tmp/
+**/log/
+**/.bundle/
+__pycache__/

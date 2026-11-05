@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Usage: AUTH_MODE=entra PATRON_API_URL=... JOB_CLIENT_ID=... bin/overdue_notices
+# Runs without Rails; the shared gem lives at ../../gems in the repo and in the image.
+$LOAD_PATH.unshift File.expand_path("../../gems/entra_auth/lib", __dir__)
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
+require "entra_auth"
+require "overdue_notices_job"
+
+OverdueNoticesJob.from_env.run

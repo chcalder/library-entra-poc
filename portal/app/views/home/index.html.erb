@@ -1,0 +1,47 @@
+<% if signed_in? %>
+  <h1>Welcome, <%= current_identity.name %></h1>
+  <p class="lede">Your library account at a glance.</p>
+
+  <div class="grid">
+    <%= link_to loans_path, class: "tile" do %><strong>Loans</strong><span>Due dates and calendar reminders</span><% end %>
+    <%= link_to fines_path, class: "tile" do %><strong>Fines</strong><span>Balance and charges</span><% end %>
+    <%= link_to eresources_path, class: "tile" do %><strong>E-resources</strong><span>Licensed databases</span><% end %>
+    <% if librarian? %>
+      <%= link_to staff_path, class: "tile" do %><strong>Staff tools</strong><span>Look up patrons, waive fines</span><% end %>
+    <% end %>
+  </div>
+
+  <h2>How you're signed in</h2>
+  <div class="card">
+    <dl>
+      <dt>NetID</dt><dd><code><%= @profile["netid"] %></code></dd>
+      <dt>Library barcode</dt><dd><%= @profile["barcode"] %></dd>
+      <dt>Identity provider</dt><dd><%= current_identity.source == "entra" ? "Microsoft Entra ID (OpenID Connect)" : "CAS" %></dd>
+      <dt>Roles (from the Patron API)</dt><dd><%= @profile["roles"].presence&.join(", ") || "none" %></dd>
+      <dt>API saw this call as</dt><dd><code><%= @profile["authenticated_via"] %></code> from <code><%= @profile["calling_app"] %></code></dd>
+      <dt>Entra object ID</dt><dd><%= @profile["entra_oid"] ? tag.code(@profile["entra_oid"]) : "not linked yet (signs in with CAS)" %></dd>
+    </dl>
+    <%# ENTRA MIGRATION (phase 2, demo + API-3): the access token, then the licence-free OBO check. %>
+    <% if current_identity.source == "entra" %>
+      <p><%= link_to "Show the access token sent to the API", access_token_path, class: "btn" %></p>
+    <% end %>
+    <p><%= link_to "Check On-Behalf-Of with Microsoft Graph", graph_check_path %></p>
+  </div>
+
+  <%# ENTRA MIGRATION (phase 2, demo): the ID token Entra issued to the portal. %>
+  <% if session[:id_token].present? %>
+    <h2>ID token issued by Entra</h2>
+    <div class="card">
+      <p>Tells the <strong>portal</strong> who signed in (<code>aud</code> is the portal's client ID). It is never
+         sent to the Patron API: API calls carry a separate access token, which the portal treats as opaque.</p>
+      <h3>Header</h3>
+      <pre class="token"><%= JSON.pretty_generate(session[:id_token]["header"]) %></pre>
+      <h3>Claims</h3>
+      <pre class="token"><%= JSON.pretty_generate(session[:id_token]["claims"]) %></pre>
+    </div>
+  <% end %>
+<% else %>
+  <h1>University Library</h1>
+  <p class="lede">Sign in with your university account to see loans, fines and licensed e-resources.</p>
+  <%= link_to "Sign in", login_path, class: "btn" %>
+<% end %>

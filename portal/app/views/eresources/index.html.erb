@@ -1,0 +1,10 @@
+<h1>E-resources</h1>
+<p class="lede">Databases licensed for current students, faculty and staff.</p>
+
+<div class="grid">
+  <% @databases.each do |db| %>
+    <a class="tile" href="<%= db["url"] %>" rel="noopener" target="_blank">
+      <strong><%= db["name"] %></strong><span>Open database</span>
+    </a>
+  <% end %>
+</div>

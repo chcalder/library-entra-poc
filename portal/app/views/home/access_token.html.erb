@@ -1,0 +1,24 @@
+<%# ENTRA MIGRATION (phase 2, demo): new page, the access token as the Patron API received it. %>
+<h1>Access token sent to the Patron API</h1>
+<p class="lede">The portal attached this token to its request; the Patron API validated it and sent back what it
+   received. It is the token the API exchanges for a Microsoft Graph token in the On-Behalf-Of check.</p>
+
+<div class="card">
+  <% if @error %>
+    <p><%= @error %></p>
+  <% else %>
+    <dl>
+      <dt><code>aud</code></dt><dd>Who the token is for: the Patron API, not the portal (compare the ID token on Home)</dd>
+      <dt><code>scp</code></dt><dd>Delegated scopes the user's sign-in granted the portal on this API</dd>
+      <dt><code>roles</code></dt><dd>The user's app roles on the Patron API</dd>
+      <dt><code>azp</code></dt><dd>The app holding the token: the portal's client ID</dd>
+      <dt><code>oid</code></dt><dd>The user's object ID, which On-Behalf-Of keeps through the exchange</dd>
+    </dl>
+    <h3>Header</h3>
+    <pre class="token"><%= JSON.pretty_generate(@token["header"]) %></pre>
+    <h3>Claims</h3>
+    <pre class="token"><%= JSON.pretty_generate(@token["claims"]) %></pre>
+  <% end %>
+</div>
+<p><%= link_to "Next: check On-Behalf-Of with Microsoft Graph", graph_check_path, class: "btn" %>
+   <%= link_to "Back to home", root_path %></p>

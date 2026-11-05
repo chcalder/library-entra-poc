@@ -1,0 +1,44 @@
+# Seed data for the Patron Record API (stands in for the ILS: Alma, FOLIO, Sierra...).
+# Records are keyed by NetID, the identifier CAS has always provided.
+# entra_oid starts empty and is linked on a patron's first Entra sign-in
+# (see PatronStore#link_oid and docs/01-auth-upgrade-playbook.md, "Identifier crosswalk").
+# due_in_days is relative to the day the API starts, so the demo always has
+# items due soon and items overdue.
+jstudent:
+  name: Jordan Student
+  email: jstudent@example.edu
+  barcode: "21234000012345"
+  affiliations: [student]
+  loans:
+    - { id: L-1001, title: "Designing Data-Intensive Applications", due_in_days: 5 }
+    - { id: L-1002, title: "The Structure of Scientific Revolutions", due_in_days: 12 }
+    - { id: L-1003, title: "Calculus: Early Transcendentals", due_in_days: -3 }
+  fines:
+    - { id: F-501, amount: 4.50, reason: "Overdue: Calculus: Early Transcendentals", status: open }
+    - { id: F-502, amount: 25.00, reason: "Lost item: Organic Chemistry lab manual", status: open }
+mfaculty:
+  name: Morgan Faculty
+  email: mfaculty@example.edu
+  barcode: "21234000023456"
+  affiliations: [faculty]
+  loans:
+    - { id: L-2001, title: "Thinking, Fast and Slow", due_in_days: 60 }
+    - { id: L-2002, title: "Gödel, Escher, Bach", due_in_days: 90 }
+  fines: []
+llibrarian:
+  name: Lee Librarian
+  email: llibrarian@example.edu
+  barcode: "21234000034567"
+  affiliations: [staff, librarian]
+  loans:
+    - { id: L-3001, title: "The Library Book", due_in_days: 21 }
+  fines: []
+aalumni:
+  name: Avery Alumni
+  email: aalumni@example.edu
+  barcode: "21234000045678"
+  affiliations: [alum]
+  loans:
+    - { id: L-4001, title: "A Brief History of Time", due_in_days: -10 }
+  fines:
+    - { id: F-901, amount: 10.00, reason: "Overdue: A Brief History of Time", status: open }

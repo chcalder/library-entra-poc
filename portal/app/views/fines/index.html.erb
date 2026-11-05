@@ -1,0 +1,22 @@
+<h1>Fines</h1>
+<p class="lede">Outstanding balance: <strong>$<%= format("%.2f", @balance) %></strong></p>
+
+<div class="card">
+  <% if @fines.empty? %>
+    <p>No fines on your account.</p>
+  <% else %>
+    <table>
+      <thead><tr><th>Reason</th><th>Amount</th><th>Reference</th><th>Status</th></tr></thead>
+      <tbody>
+        <% @fines.each do |fine| %>
+          <tr>
+            <td><%= fine["reason"] %></td>
+            <td>$<%= format("%.2f", fine["amount"]) %></td>
+            <td><code><%= fine["id"] %></code></td>
+            <td><span class="pill <%= fine["status"] %>"><%= fine["status"].capitalize %></span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

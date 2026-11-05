@@ -1,0 +1,5 @@
+<h1>Sign in</h1>
+<p class="lede">Use your university Microsoft account.</p>
+<%# ENTRA MIGRATION (phase 2, AUTH-1): rendered only in Entra mode; in CAS mode /login redirects to CAS. %>
+<%# OmniAuth 2: the request phase must be a POST carrying the Rails CSRF token. %>
+<%= button_to "Sign in with Microsoft", "/auth/entra_id", method: :post, class: "btn", data: { turbo: false } %>

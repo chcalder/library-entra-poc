@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "rails", "~> 8.0.0"
+gem "puma", ">= 6.4"
+gem "bootsnap", require: false
+gem "tzinfo-data"    # slim images ship without zoneinfo
+
+# ENTRA MIGRATION (phase 1): both gems below are new.
+# Shared token toolkit (OBO, client credentials, token validation).
+# The path is the same locally and in the container (/app -> /gems).
+gem "entra_auth", path: "../gems/entra_auth"
+gem "jwt", ">= 2.7", "< 4"
+
+group :development, :test do
+  gem "debug", platforms: %i[mri windows]
+end

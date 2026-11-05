@@ -1,0 +1,9 @@
+<%# ENTRA MIGRATION (phase 2, API-4 + AUTH-7): new page. %>
+<h1>Additional verification required</h1>
+<p class="lede"><%= @message %></p>
+<div class="card">
+  <p>Your university requires an extra sign-in step (such as multi-factor authentication) for this page.
+     You'll return here once it's done.</p>
+  <%# Sends the user back through Entra with the claims the API asked for (see config/initializers/omniauth.rb). %>
+  <%= button_to "Verify and continue", "/auth/entra_id", method: :post, class: "btn", data: { turbo: false } %>
+</div>

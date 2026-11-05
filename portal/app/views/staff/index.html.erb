@@ -1,0 +1,45 @@
+<h1>Staff tools</h1>
+<p class="lede">Look up a patron by NetID. Actions are logged under your own identity.</p>
+
+<%= form_with url: staff_path, method: :get, class: "card" do %>
+  <label for="netid">NetID</label>
+  <input type="text" id="netid" name="netid" value="<%= @netid %>" placeholder="jstudent">
+  <button class="btn" type="submit">Look up</button>
+<% end %>
+
+<% if @patron %>
+  <div class="card">
+    <h2 style="margin-top:0"><%= @patron["name"] %> <small><code><%= @patron["netid"] %></code></small></h2>
+    <dl>
+      <dt>Email</dt><dd><%= @patron["email"] %></dd>
+      <dt>Affiliations</dt><dd><%= @patron["affiliations"].join(", ") %></dd>
+      <dt>Loans</dt><dd><%= @patron["loans"].size %> (<%= @patron["loans"].count { |l| l["overdue"] } %> overdue)</dd>
+    </dl>
+
+    <h2>Fines</h2>
+    <% if @patron["fines"].empty? %>
+      <p>No fines.</p>
+    <% else %>
+      <table>
+        <thead><tr><th>Reason</th><th>Amount</th><th>Reference</th><th></th></tr></thead>
+        <tbody>
+          <% @patron["fines"].each do |fine| %>
+            <tr>
+              <td><%= fine["reason"] %></td>
+              <td>$<%= format("%.2f", fine["amount"]) %></td>
+              <td><code><%= fine["id"] %></code></td>
+              <td>
+                <% if fine["status"] == "open" %>
+                  <%= button_to "Waive", staff_waive_fine_path(netid: @patron["netid"], fine_id: fine["id"]),
+                                method: :post, class: "btn secondary", form_class: "inline" %>
+                <% else %>
+                  <span class="pill <%= fine["status"] %>"><%= fine["status"].capitalize %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+<% end %>

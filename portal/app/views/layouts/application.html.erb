@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>University Library · My Account</title>
+  <%= csrf_meta_tags %>
+  <style>
+    :root{--ink:#1d1d1b;--muted:#6b6760;--line:#e2ded6;--paper:#faf8f4;--card:#fff;--brand:#7a1f1f;--brand-ink:#fff;--ok:#1f5e3a;--ok-bg:#e8f3ec;--warn:#7a4b00;--warn-bg:#fdf3e1;--err:#7a1f1f;--err-bg:#fbe9e9}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+    header{background:var(--brand);color:var(--brand-ink)}
+    .bar{max-width:960px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .brand{font-family:Georgia,"Times New Roman",serif;font-size:1.25rem;font-weight:600;color:inherit;text-decoration:none;margin-right:auto}
+    nav a{color:#f6e9e9;text-decoration:none;margin-right:14px;font-size:.95rem}
+    nav a:hover{color:#fff;text-decoration:underline}
+    .who{font-size:.85rem;display:flex;gap:10px;align-items:center}
+    .who button{background:transparent;border:1px solid #e9c9c9;color:#fff;border-radius:4px;padding:3px 10px;cursor:pointer}
+    main{max-width:960px;margin:0 auto;padding:28px 16px 48px}
+    h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:1.7rem;margin:0 0 6px}
+    h2{font-size:1.05rem;margin:28px 0 10px}
+    .lede{color:var(--muted);margin:0 0 22px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:.95rem}
+    th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+    th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+    .pill{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:999px;background:#efeae1;color:var(--ink)}
+    .pill.overdue,.pill.open{background:var(--err-bg);color:var(--err)}
+    .pill.waived{background:var(--ok-bg);color:var(--ok)}
+    .btn{display:inline-block;background:var(--brand);color:#fff;border:0;border-radius:6px;padding:9px 16px;font-size:.95rem;cursor:pointer;text-decoration:none}
+    .btn.secondary{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+    .flash{padding:10px 14px;border-radius:6px;margin-bottom:18px}
+    .flash.notice{background:var(--ok-bg);color:var(--ok)}
+    .flash.alert{background:var(--warn-bg);color:var(--warn)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+    .tile{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;color:inherit;text-decoration:none}
+    .tile:hover{border-color:var(--brand)}
+    .tile strong{display:block;margin-bottom:2px}
+    .tile span{color:var(--muted);font-size:.88rem}
+    dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+    dt{color:var(--muted);font-size:.88rem}dd{margin:0}
+    code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;background:#f1ede6;padding:1px 5px;border-radius:3px}
+    .scroll{overflow-x:auto}
+    table.correlation td{vertical-align:top}table.correlation code{word-break:break-all}
+    table.correlation tr.same td{background:#e8f4ea}table.correlation tr.changes td{background:#fdf3e1}
+    table.correlation tr.note td{font-size:.82rem;color:var(--muted);border-bottom:2px solid var(--line);padding-top:0}
+    .key{padding:1px 6px;border-radius:3px}.key.same{background:#e8f4ea}.key.changes{background:#fdf3e1}
+    .muted{color:var(--muted)}
+    pre.token{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;background:#f1ede6;padding:10px 12px;border-radius:4px;overflow-x:auto;margin:0 0 12px}
+    footer{max-width:960px;margin:0 auto;padding:0 16px 32px;color:var(--muted);font-size:.8rem}
+    form.inline{display:inline}
+    input[type=text]{padding:8px;border:1px solid #bdb8ae;border-radius:5px;font-size:.95rem}
+    @media (max-width:600px){th:nth-child(3),td:nth-child(3){display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a class="brand" href="<%= root_path %>">University Library</a>
+      <% if signed_in? %>
+        <nav>
+          <%= link_to "Loans", loans_path %>
+          <%= link_to "Fines", fines_path %>
+          <%= link_to "E-resources", eresources_path %>
+          <%= link_to "Staff", staff_path if librarian? %>
+        </nav>
+        <div class="who">
+          <span><%= current_identity.name %></span>
+          <%= button_to "Sign out", logout_path, method: :delete, form_class: "inline" %>
+        </div>
+      <% end %>
+    </div>
+  </header>
+  <main>
+    <% flash.each do |type, message| %>
+      <div class="flash <%= type %>"><%= message %></div>
+    <% end %>
+    <%= yield %>
+  </main>
+  <footer>
+    Sign-in: <strong><%= AppConfig.phase_label %></strong>
+    · Patron API credential: <strong><%= AppConfig.entra? ? "user access token (Entra)" : "API key + X-Remote-User" %></strong>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<%# ENTRA MIGRATION (phase 2, API-3): new page, the licence-free OBO check. %>
+<h1>Microsoft Graph check</h1>
+<p class="lede">The Patron API exchanged your access token for a Microsoft Graph token (On-Behalf-Of) and asked Graph
+   who you are. No mailbox or licence is needed.</p>
+
+<% if @error %>
+  <div class="card"><p><%= @error %></p></div>
+<% else %>
+  <div class="card">
+    <dl>
+      <dt>Graph says you are</dt><dd><%= @result.dig("graph_user", "display_name") %> (<code><%= @result.dig("graph_user", "user_principal_name") %></code>)</dd>
+      <dt>Same user as your sign-in</dt><dd><%= @result["same_user"] ? "Yes: the API acted as you" : "No: object IDs differ" %></dd>
+      <dt>Graph permissions on the OBO token</dt><dd><%= @result["obo_scopes"].presence&.join(", ") || "not reported" %></dd>
+    </dl>
+  </div>
+
+  <h2>How the tokens correlate</h2>
+  <div class="card">
+    <p>Each hop gets a new token for a new audience, held by a different app, but every one of them is about
+       <strong>the same user</strong>.
+       <span class="key same">Same user</span> rows must match everywhere;
+       <span class="key changes">Changes per hop</span> rows are meant to differ.</p>
+    <% if @correlation.missing_sources.any? %>
+      <p class="muted">Not shown: <%= @correlation.missing_sources.join(", ") %>.
+         (The ID token appears after a fresh sign-in; a Graph token that can't be decoded is treated as opaque.)</p>
+    <% end %>
+    <div class="scroll">
+      <table class="correlation">
+        <thead>
+          <tr><th>Claim</th><% TokenCorrelation::SOURCES.each do |s| %><th><%= s %></th><% end %><th></th></tr>
+        </thead>
+        <tbody>
+          <% @correlation.rows.each do |row| %>
+            <tr class="<%= row.kind %>">
+              <td><code><%= row.claim %></code></td>
+              <% row.values.each do |v| %>
+                <td><%= v.nil? ? tag.span("–", class: "muted") : tag.code(v) %></td>
+              <% end %>
+              <td>
+                <% if row.kind == :same %><%= row.consistent? ? "✓ same" : "✗ mismatch" %><% end %>
+              </td>
+            </tr>
+            <tr class="note"><td></td><td colspan="5"><%= row.note %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <% if @result["obo_token"] %>
+    <h2>The OBO token issued to the Patron API</h2>
+    <div class="card">
+      <p>Issued by Entra in exchange for your access token. The header's <code>nonce</code> marks it as a Graph token:
+         only Graph can validate it, so it is shown for illustration only.</p>
+      <h3>Header</h3>
+      <pre class="token"><%= JSON.pretty_generate(@result.dig("obo_token", "header")) %></pre>
+      <h3>Claims</h3>
+      <pre class="token"><%= JSON.pretty_generate(@result.dig("obo_token", "claims")) %></pre>
+    </div>
+  <% end %>
+<% end %>
+<p><%= link_to "Back to home", root_path %></p>

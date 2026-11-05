@@ -1,0 +1,28 @@
+# Demo identities for Mock CAS. NetIDs match the Patron Record API data and the
+# Entra test users created by infra/entra/setup-app-registrations.sh
+# (jstudent@<your-tenant-domain>, ...), which is how the migration keeps the
+# same patron records when sign-in moves from CAS to Entra.
+jstudent:
+  password: password
+  attributes:
+    displayName: Jordan Student
+    mail: jstudent@example.edu
+    eduPersonAffiliation: [student, member]
+mfaculty:
+  password: password
+  attributes:
+    displayName: Morgan Faculty
+    mail: mfaculty@example.edu
+    eduPersonAffiliation: [faculty, employee, member]
+llibrarian:
+  password: password
+  attributes:
+    displayName: Lee Librarian
+    mail: llibrarian@example.edu
+    eduPersonAffiliation: [staff, employee, member, librarian]
+aalumni:
+  password: password
+  attributes:
+    displayName: Avery Alumni
+    mail: aalumni@example.edu
+    eduPersonAffiliation: [alum]

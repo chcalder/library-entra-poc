@@ -1,0 +1,58 @@
+# Local run of all three services. Switch migration phases by editing the
+# *_AUTH_MODE values in .env and running `docker compose up -d --build`.
+#
+#   Browser -> http://localhost:3000 (portal), http://localhost:8081 (mock CAS)
+#   Portal  -> http://patron-api:3001, http://mock-cas:8081 (server-side calls)
+name: library-entra-poc
+
+services:
+  mock-cas:
+    build: { context: ., dockerfile: mock-cas/Dockerfile }
+    ports: ["8081:8081"]
+
+  patron-api:
+    build: { context: ., dockerfile: patron-api/Dockerfile }
+    ports: ["3001:3001"] # exposed only so you can curl it; in Azure it is internal-only
+    environment:
+      RAILS_ENV: development
+      AUTH_MODE: ${PATRON_API_AUTH_MODE:-legacy}
+      LEGACY_API_KEY: ${LEGACY_API_KEY}
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-not-configured}
+      ENTRA_CLIENT_ID: ${PATRON_API_CLIENT_ID:-not-configured}
+      ENTRA_CLIENT_SECRET: ${PATRON_API_CLIENT_SECRET:-}
+      FINES_AUTH_CONTEXT: ${FINES_AUTH_CONTEXT:-}
+      GRAPH_TIME_ZONE: ${GRAPH_TIME_ZONE:-UTC}
+      DEMO_AUTO_PROVISION: ${DEMO_AUTO_PROVISION:-false}
+
+  portal:
+    build: { context: ., dockerfile: portal/Dockerfile }
+    ports: ["3000:3000"]
+    depends_on: [patron-api, mock-cas]
+    environment:
+      RAILS_ENV: development
+      AUTH_MODE: ${PORTAL_AUTH_MODE:-cas}
+      PATRON_API_URL: http://patron-api:3001
+      PATRON_API_KEY: ${LEGACY_API_KEY}
+      PATRON_API_SCOPES: ${PATRON_API_SCOPES:-}
+      # Browser-facing CAS URLs vs the server-to-server validation URL
+      CAS_LOGIN_URL: http://localhost:8081/cas/login
+      CAS_LOGOUT_URL: http://localhost:8081/cas/logout
+      CAS_VALIDATE_URL: http://mock-cas:8081/cas/p3/serviceValidate
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-not-configured}
+      ENTRA_CLIENT_ID: ${PORTAL_CLIENT_ID:-not-configured}
+      ENTRA_CLIENT_SECRET: ${PORTAL_CLIENT_SECRET:-}
+
+  # Run on demand: docker compose run --rm notices
+  notices:
+    build: { context: ., dockerfile: patron-api/Dockerfile }
+    profiles: [jobs]
+    command: ["bin/overdue_notices"]
+    depends_on: [patron-api]
+    environment:
+      AUTH_MODE: ${JOB_AUTH_MODE:-legacy}
+      PATRON_API_URL: http://patron-api:3001
+      LEGACY_API_KEY: ${LEGACY_API_KEY}
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-not-configured}
+      JOB_CLIENT_ID: ${JOB_CLIENT_ID:-not-configured}
+      JOB_CLIENT_SECRET: ${JOB_CLIENT_SECRET:-}
+      PATRON_API_APP_SCOPE: ${PATRON_API_APP_SCOPE:-}

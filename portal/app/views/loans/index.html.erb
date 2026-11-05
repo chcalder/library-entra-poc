@@ -1,0 +1,25 @@
+<h1>Loans</h1>
+<p class="lede">Items you have checked out.</p>
+
+<div class="card">
+  <table>
+    <thead><tr><th>Title</th><th>Due</th><th>Item</th><th>Status</th></tr></thead>
+    <tbody>
+      <% @loans.each do |loan| %>
+        <tr>
+          <td><%= loan["title"] %></td>
+          <td><%= Date.parse(loan["due_date"]).strftime("%b %-d, %Y") %></td>
+          <td><code><%= loan["id"] %></code></td>
+          <td><span class="pill <%= "overdue" if loan["overdue"] %>"><%= loan["overdue"] ? "Overdue" : "Checked out" %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<h2>Never miss a due date</h2>
+<div class="card">
+  <p>Add reminders for items that aren't overdue to your Outlook calendar. The Patron API writes the
+     events through Microsoft Graph <em>as you</em>, using the On-Behalf-Of flow.</p>
+  <%= button_to "Add due dates to my Outlook calendar", loan_reminders_path, method: :post, class: "btn" %>
+</div>

@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+desc "Run EntraAuth tests"
+task :test do
+  ruby "-Itest -e 'Dir[\"test/*_test.rb\"].each { |f| require File.expand_path(f) }'"
+end
+
+task default: :test
